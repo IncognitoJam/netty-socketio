@@ -1,12 +1,12 @@
 /**
  * Copyright 2012 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,6 +15,7 @@
  */
 package com.corundumstudio.socketio.protocol;
 
+import com.corundumstudio.socketio.Configuration;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufOutputStream;
@@ -28,12 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 
-import com.corundumstudio.socketio.Configuration;
-
 public class PacketEncoder {
 
     private static final byte[] BINARY_HEADER = "b4".getBytes(CharsetUtil.UTF_8);
-    private static final byte[] B64_DELIMITER = new byte[] {':'};
+    private static final byte[] B64_DELIMITER = new byte[]{':'};
     private static final byte[] JSONP_HEAD = "___eio[".getBytes(CharsetUtil.UTF_8);
     private static final byte[] JSONP_START = "]('".getBytes(CharsetUtil.UTF_8);
     private static final byte[] JSONP_END = "');".getBytes(CharsetUtil.UTF_8);
@@ -49,7 +48,7 @@ public class PacketEncoder {
     public JsonSupport getJsonSupport() {
         return jsonSupport;
     }
-    
+
     public ByteBuf allocateBuffer(ByteBufAllocator allocator) {
         if (configuration.isPreferDirectBuffer()) {
             return allocator.ioBuffer();
@@ -168,7 +167,7 @@ public class PacketEncoder {
 
     // Requires positive x
     static int stringSize(long x) {
-        for (int i = 0;; i++)
+        for (int i = 0; ; i++)
             if (x <= sizeTable[i])
                 return i + 1;
     }
@@ -189,16 +188,16 @@ public class PacketEncoder {
             // really: r = i - (q * 100);
             r = i - ((q << 6) + (q << 5) + (q << 2));
             i = q;
-            buf[--charPos] = (byte) DigitOnes[(int)r];
-            buf[--charPos] = (byte) DigitTens[(int)r];
+            buf[--charPos] = (byte) DigitOnes[(int) r];
+            buf[--charPos] = (byte) DigitTens[(int) r];
         }
 
         // Fall thru to fast mode for smaller numbers
         // assert(i <= 65536, i);
-        for (;;) {
+        for (; ; ) {
             q = (i * 52429) >>> (16 + 3);
             r = i - ((q << 3) + (q << 1)); // r = i-(q*10) ...
-            buf[--charPos] = (byte) digits[(int)r];
+            buf[--charPos] = (byte) digits[(int) r];
             i = q;
             if (i == 0)
                 break;
@@ -217,7 +216,7 @@ public class PacketEncoder {
 
     public static byte[] longToBytes(long number) {
         // TODO optimize
-        int length = (int)(Math.log10(number)+1);
+        int length = (int) (Math.log10(number) + 1);
         byte[] res = new byte[length];
         int i = length;
         while (number > 0) {

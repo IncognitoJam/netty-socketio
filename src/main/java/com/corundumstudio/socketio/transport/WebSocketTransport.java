@@ -1,12 +1,12 @@
 /**
  * Copyright 2012 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,13 +14,6 @@
  * limitations under the License.
  */
 package com.corundumstudio.socketio.transport;
-
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketIOChannelInitializer;
@@ -31,25 +24,21 @@ import com.corundumstudio.socketio.handler.ClientsBox;
 import com.corundumstudio.socketio.messages.PacketsMessage;
 import com.corundumstudio.socketio.scheduler.CancelableScheduler;
 import com.corundumstudio.socketio.scheduler.SchedulerKey;
-
 import io.netty.buffer.ByteBufHolder;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.*;
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
-import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
-import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
+import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.ReferenceCountUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 @Sharable
 public class WebSocketTransport extends ChannelInboundHandlerAdapter {
@@ -66,8 +55,8 @@ public class WebSocketTransport extends ChannelInboundHandlerAdapter {
     private final boolean isSsl;
 
     public WebSocketTransport(boolean isSsl,
-            AuthorizeHandler authorizeHandler, Configuration configuration,
-            CancelableScheduler scheduler, ClientsBox clientsBox) {
+                              AuthorizeHandler authorizeHandler, Configuration configuration,
+                              CancelableScheduler scheduler, ClientsBox clientsBox) {
         this.isSsl = isSsl;
         this.authorizeHandler = authorizeHandler;
         this.configuration = configuration;
@@ -81,7 +70,7 @@ public class WebSocketTransport extends ChannelInboundHandlerAdapter {
             ctx.channel().close();
             ReferenceCountUtil.release(msg);
         } else if (msg instanceof BinaryWebSocketFrame
-                    || msg instanceof TextWebSocketFrame) {
+                || msg instanceof TextWebSocketFrame) {
             ByteBufHolder frame = (ByteBufHolder) msg;
             ClientHead client = clientsBox.get(ctx.channel());
             if (client == null) {
@@ -176,7 +165,7 @@ public class WebSocketTransport extends ChannelInboundHandlerAdapter {
         ClientHead client = clientsBox.get(sessionId);
         if (client == null) {
             log.warn("Unauthorized client with sessionId: {} with ip: {}. Channel closed!",
-                        sessionId, channel.remoteAddress());
+                    sessionId, channel.remoteAddress());
             channel.close();
             return;
         }

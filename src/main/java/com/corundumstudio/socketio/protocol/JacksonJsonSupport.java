@@ -1,12 +1,12 @@
 /**
  * Copyright 2012 Nikita Koksharov
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,44 +15,12 @@
  */
 package com.corundumstudio.socketio.protocol;
 
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import io.netty.util.internal.PlatformDependent;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.corundumstudio.socketio.AckCallback;
 import com.corundumstudio.socketio.MultiTypeAckCallback;
 import com.corundumstudio.socketio.namespace.Namespace;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.BeanDescription;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationConfig;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonArrayFormatVisitor;
 import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatTypes;
@@ -63,6 +31,17 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.fasterxml.jackson.databind.type.ArrayType;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.util.internal.PlatformDependent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.Type;
+import java.util.*;
 
 public class JacksonJsonSupport implements JsonSupport {
 
@@ -200,8 +179,7 @@ public class JacksonJsonSupport implements JsonSupport {
 
     }
 
-    public static class ByteArraySerializer extends StdSerializer<byte[]>
-    {
+    public static class ByteArraySerializer extends StdSerializer<byte[]> {
 
         private static final long serialVersionUID = 3420082888596468148L;
 
@@ -209,7 +187,9 @@ public class JacksonJsonSupport implements JsonSupport {
             @Override
             protected List<byte[]> initialValue() {
                 return new ArrayList<byte[]>();
-            };
+            }
+
+            ;
         };
 
         public ByteArraySerializer() {
@@ -223,8 +203,7 @@ public class JacksonJsonSupport implements JsonSupport {
 
         @Override
         public void serialize(byte[] value, JsonGenerator jgen, SerializerProvider provider)
-            throws IOException, JsonGenerationException
-        {
+                throws IOException, JsonGenerationException {
             Map<String, Object> map = new HashMap<String, Object>();
             map.put("num", arrays.get().size());
             map.put("_placeholder", true);
@@ -234,15 +213,13 @@ public class JacksonJsonSupport implements JsonSupport {
 
         @Override
         public void serializeWithType(byte[] value, JsonGenerator jgen, SerializerProvider provider,
-                TypeSerializer typeSer)
-            throws IOException, JsonGenerationException
-        {
+                                      TypeSerializer typeSer)
+                throws IOException, JsonGenerationException {
             serialize(value, jgen, provider);
         }
 
         @Override
-        public JsonNode getSchema(SerializerProvider provider, Type typeHint)
-        {
+        public JsonNode getSchema(SerializerProvider provider, Type typeHint) {
             ObjectNode o = createSchemaNode("array", true);
             ObjectNode itemSchema = createSchemaNode("string"); //binary values written as strings?
             return o.set("items", itemSchema);
@@ -250,8 +227,7 @@ public class JacksonJsonSupport implements JsonSupport {
 
         @Override
         public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
-                throws JsonMappingException
-        {
+                throws JsonMappingException {
             if (visitor != null) {
                 JsonArrayFormatVisitor v2 = visitor.expectArrayFormat(typeHint);
                 if (v2 != null) {
@@ -277,7 +253,7 @@ public class JacksonJsonSupport implements JsonSupport {
 
         @Override
         public JsonSerializer<?> modifyArraySerializer(SerializationConfig config, ArrayType valueType,
-                BeanDescription beanDesc, JsonSerializer<?> serializer) {
+                                                       BeanDescription beanDesc, JsonSerializer<?> serializer) {
             if (valueType.getRawClass().equals(byte[].class)) {
                 return this.serializer;
             }
@@ -301,7 +277,7 @@ public class JacksonJsonSupport implements JsonSupport {
     protected static final Logger log = LoggerFactory.getLogger(JacksonJsonSupport.class);
 
     public JacksonJsonSupport() {
-        this(new Module[] {});
+        this(new Module[]{});
     }
 
     public JacksonJsonSupport(Module... modules) {
@@ -325,7 +301,7 @@ public class JacksonJsonSupport implements JsonSupport {
     }
 
     @Override
-    public void addEventMapping(String namespaceName, String eventName, Class<?> ... eventClass) {
+    public void addEventMapping(String namespaceName, String eventName, Class<?>... eventClass) {
         eventDeserializer.eventMapping.put(new EventKey(namespaceName, eventName), Arrays.asList(eventClass));
     }
 
@@ -337,19 +313,19 @@ public class JacksonJsonSupport implements JsonSupport {
     @Override
     public <T> T readValue(String namespaceName, ByteBufInputStream src, Class<T> valueType) throws IOException {
         namespaceClass.set(namespaceName);
-        return objectMapper.readValue(src, valueType);
+        return objectMapper.readValue((InputStream) src, valueType);
     }
 
     @Override
     public AckArgs readAckArgs(ByteBufInputStream src, AckCallback<?> callback) throws IOException {
         currentAckClass.set(callback);
-        return objectMapper.readValue(src, AckArgs.class);
+        return objectMapper.readValue((InputStream) src, AckArgs.class);
     }
 
     @Override
     public void writeValue(ByteBufOutputStream out, Object value) throws IOException {
         modifier.getSerializer().clear();
-        objectMapper.writeValue(out, value);
+        objectMapper.writeValue((OutputStream) out, value);
     }
 
     @Override
